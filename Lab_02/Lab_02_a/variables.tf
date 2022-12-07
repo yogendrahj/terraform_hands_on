@@ -1,16 +1,16 @@
 variable "aws_region" {
-    type = string
-    default = "eu-west-2"
+  type    = string
+  default = "eu-west-2"
 }
 
 variable "vpc_name" {
-    type = string
-    default = "demo_vpc"
+  type    = string
+  default = "demo_vpc"
 }
 
 variable "vpc_cidr" {
-    type = string
-    default = "10.0.0.0/16"
+  type    = string
+  default = "10.0.0.0/16"
 }
 
 variable "Lab_01_a_vpc_pub_sn" {
@@ -29,26 +29,26 @@ variable "Lab_01_a_vpc_prvt_sn" {
   }
 }
 
-variable "variables_subnet_cidr"{
-    description = "CIDR block for the variables subnet"
-    type = string
-    default = "10.0.202.0/24"
+variable "variables_subnet_cidr" {
+  description = "CIDR block for the variables subnet"
+  type        = string
+  default     = "10.0.202.0/24"
 }
 
-variable "variables_subnet_az"{
-    description = "AZ used variable subnet"
-    type = string
-    default = "eu-west-2a"
+variable "variables_subnet_az" {
+  description = "AZ used variable subnet"
+  type        = string
+  default     = "eu-west-2a"
 }
 
-variable "variables_subnet_auto_ip"{
-    description = "Set automatic IP for variables subnet"
-    type = bool
-    default = true
+variable "variables_subnet_auto_ip" {
+  description = "Set automatic IP for variables subnet"
+  type        = bool
+  default     = true
 }
 
-variable "environment"{
+variable "environment" {
   description = "Environment for deployment"
-  type = string
-  default = "dev"
+  type        = string
+  default     = "dev"
 }

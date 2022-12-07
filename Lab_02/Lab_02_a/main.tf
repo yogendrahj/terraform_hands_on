@@ -2,7 +2,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "4.45.0"
     }
   }
@@ -17,15 +17,15 @@ data "aws_region" "current" {}
 data "aws_availability_zones" "available" {}
 
 #defining local variables
-locals{
-    team = "api_mgmt_dev"
-    application = "corp_api"
-    server_name = "ec2-${var.environment}-api-${var.variables_subnet_az}"
+locals {
+  team        = "api_mgmt_dev"
+  application = "corp_api"
+  server_name = "ec2-${var.environment}-api-${var.variables_subnet_az}"
 }
 
 #creating vpc
 resource "aws_vpc" "Lab_01_a_vpc" {
- cidr_block = var.vpc_cidr
+  cidr_block = var.vpc_cidr
   tags = {
     Name        = var.vpc_name
     Environment = "demo_environment"
@@ -63,10 +63,10 @@ resource "aws_eip" "Lab_01_a_vpc_eip" {
 
 #creating public subnets
 resource "aws_subnet" "Lab_01_a_vpc_pub_sn" {
-  for_each   = var.Lab_01_a_vpc_pub_sn
-  vpc_id     = aws_vpc.Lab_01_a_vpc.id
-  cidr_block = cidrsubnet(var.vpc_cidr, 8, each.value + 100)
-  availability_zone = tolist(data.aws_availability_zones.available.names)[each.value]
+  for_each                = var.Lab_01_a_vpc_pub_sn
+  vpc_id                  = aws_vpc.Lab_01_a_vpc.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, each.value + 100)
+  availability_zone       = tolist(data.aws_availability_zones.available.names)[each.value]
   map_public_ip_on_launch = true
   tags = {
     Name      = each.key
@@ -76,9 +76,9 @@ resource "aws_subnet" "Lab_01_a_vpc_pub_sn" {
 
 #creating private subnets
 resource "aws_subnet" "Lab_01_a_vpc_prvt_sn" {
-  for_each   = var.Lab_01_a_vpc_prvt_sn
-  vpc_id     = aws_vpc.Lab_01_a_vpc.id
-  cidr_block = cidrsubnet(var.vpc_cidr, 8, each.value)
+  for_each          = var.Lab_01_a_vpc_prvt_sn
+  vpc_id            = aws_vpc.Lab_01_a_vpc.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 8, each.value)
   availability_zone = tolist(data.aws_availability_zones.available.names)[each.value]
   tags = {
     Name      = each.key
@@ -96,7 +96,7 @@ resource "aws_route_table" "Lab_01_a_vpc_pub_rt" {
     #nat_gateway_id = aws_nat_gateway.Lab_01_a_vpc_ngw.id
   }
   tags = {
-    Name = "Lab_01_a_vpc_pub_rt"
+    Name      = "Lab_01_a_vpc_pub_rt"
     Terraform = "True"
   }
 }
@@ -111,7 +111,7 @@ resource "aws_route_table" "Lab_01_a_vpc_prvt_rt" {
     nat_gateway_id = aws_nat_gateway.Lab_01_a_vpc_ngw.id
   }
   tags = {
-    Name = "Lab_01_a_vpc_prvt_rt"
+    Name      = "Lab_01_a_vpc_prvt_rt"
     Terraform = "True"
   }
 }
@@ -132,8 +132,8 @@ resource "aws_route_table_association" "private" {
 
 #looking up for latest Ubuntu AMI 20.04 image
 data "aws_ami" "ubuntu_ami" {
-  most_recent      = true
-  owners           = ["736750855543"]
+  most_recent = true
+  owners      = ["736750855543"]
   filter {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
@@ -148,19 +148,19 @@ data "aws_ami" "ubuntu_ami" {
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu_ami.id
   instance_type = "t2.micro"
-  subnet_id = aws_subnet.Lab_01_a_vpc_pub_sn["public_subnet_1"].id
+  subnet_id     = aws_subnet.Lab_01_a_vpc_pub_sn["public_subnet_1"].id
   tags = {
-    Name = local.server_name
+    Name  = local.server_name
     Owner = local.team
-    App = local.application
+    App   = local.application
   }
-}   
+}
 
 #creating variables subnet
 resource "aws_subnet" "variables-subnet" {
-  vpc_id     = aws_vpc.Lab_01_a_vpc.id
-  cidr_block = var.variables_subnet_cidr
-  availability_zone = var.variables_subnet_az
+  vpc_id                  = aws_vpc.Lab_01_a_vpc.id
+  cidr_block              = var.variables_subnet_cidr
+  availability_zone       = var.variables_subnet_az
   map_public_ip_on_launch = var.variables_subnet_auto_ip
   tags = {
     Name      = "sub-variables-${var.variables_subnet_az}"
@@ -175,17 +175,17 @@ resource "aws_security_group" "allow_ssh" {
   vpc_id      = aws_vpc.Lab_01_a_vpc.id
 
   ingress {
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
   // Terraform removes the default rule
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
