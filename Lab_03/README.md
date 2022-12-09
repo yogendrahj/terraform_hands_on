@@ -1,0 +1,1 @@
+In this lab we will do hands on practice for IAM Roles and Policies.
