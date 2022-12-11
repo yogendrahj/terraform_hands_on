@@ -22,30 +22,30 @@ resource "aws_vpc" "two_tier_project_vpc" {
   }
 }
 
-variable "vpc_id" {}
+/* variable "vpc_id" {}
 data "aws_vpc" "vpc" {
   id = var.vpc_id
-}
+} */
 
 #creating IGW
 resource "aws_internet_gateway" "two_tier_project_igw" {
-  vpc_id = data.aws_vpc.vpc.id
+  vpc_id = aws_vpc.two_tier_project_vpc.id
 
   tags = {
-    Name = "2_tier_project_igw"
+    Name = "two_tier_project_igw"
   }
 }
 
-data "aws_internet_gateway" "igw" {
+/* data "aws_internet_gateway" "igw" {
   filter {
     name   = "attachment.vpc-id"
     values = [var.vpc_id]
   }
-}
+} */
 
 #creating 2 public subnet
 resource "aws_subnet" "public_subnet_1" {
-  vpc_id                  = data.aws_vpc.vpc.id
+  vpc_id                  = aws_vpc.two_tier_project_vpc.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = true
@@ -55,7 +55,7 @@ resource "aws_subnet" "public_subnet_1" {
   }
 }
 resource "aws_subnet" "public_subnet_2" {
-  vpc_id                  = data.aws_vpc.vpc.id
+  vpc_id                  = aws_vpc.two_tier_project_vpc.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = true
@@ -67,7 +67,7 @@ resource "aws_subnet" "public_subnet_2" {
 
 #creating 2 private subnet
 resource "aws_subnet" "private_subnet_1" {
-  vpc_id                  = data.aws_vpc.vpc.id
+  vpc_id                  = aws_vpc.two_tier_project_vpc.id
   cidr_block              = "10.0.3.0/24"
   availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = false
@@ -77,7 +77,7 @@ resource "aws_subnet" "private_subnet_1" {
   }
 }
 resource "aws_subnet" "private_subnet_2" {
-  vpc_id                  = data.aws_vpc.vpc.id
+  vpc_id                  = aws_vpc.two_tier_project_vpc.id
   cidr_block              = "10.0.4.0/24"
   availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = false
@@ -89,10 +89,10 @@ resource "aws_subnet" "private_subnet_2" {
 
 #creating public route table
 resource "aws_route_table" "public_route_table" {
-  vpc_id = data.aws_vpc.vpc.id
+  vpc_id = aws_vpc.two_tier_project_vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = data.aws_internet_gateway.igw.id
+    gateway_id = aws_internet_gateway.two_tier_project_igw.id
   }
 }
 
@@ -110,7 +110,7 @@ resource "aws_route_table_association" "public_route_association_2" {
 resource "aws_security_group" "public_sg" {
   name        = "public_sg"
   description = "Allow SSH inbound traffic"
-  vpc_id      = data.aws_vpc.vpc.id
+  vpc_id      = aws_vpc.two_tier_project_vpc.id
 
   ingress {
     description = "SSH from internet"
@@ -145,8 +145,7 @@ resource "aws_security_group" "public_sg" {
 resource "aws_security_group" "private_sg" {
   name        = "private_sg"
   description = "Allow inbound traffic to DB within VPC"
-  vpc_id      = data.aws_vpc.vpc.id
-
+  vpc_id      = aws_vpc.two_tier_project_vpc.id
   ingress {
     description = "DB access within VPC"
     from_port   = 3306
@@ -160,7 +159,7 @@ resource "aws_security_group" "private_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = aws_security_group.public_sg.id
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   egress {
@@ -189,7 +188,7 @@ resource "aws_lb" "project_alb" {
 resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
   description = "security group for alb"
-  vpc_id      = data.aws_vpc.vpc.id
+  vpc_id      = aws_vpc.two_tier_project_vpc.id
 
   ingress {
     from_port   = "0"
@@ -210,7 +209,7 @@ resource "aws_lb_target_group" "project_tg" {
   name       = "project-tg"
   port       = 80
   protocol   = "HTTP"
-  vpc_id     = data.aws_vpc.vpc.id
+  vpc_id     = aws_vpc.two_tier_project_vpc.id
   depends_on = [aws_vpc.two_tier_project_vpc]
 }
 
@@ -242,7 +241,7 @@ resource "aws_lb_listener" "listener_lb" {
 
 #creating public ec2 instance in public sunet a
 resource "aws_instance" "web1" {
-  ami                         = "ami-0cff7528ff583bf9a"
+  ami                         = "ami-04706e771f950937f"
   instance_type               = "t2.micro"
   key_name                    = "intellipaat-test-key-pair-09122022"
   availability_zone           = "eu-west-2a"
@@ -266,7 +265,7 @@ resource "aws_instance" "web1" {
 
 #creating public instance in public subnet b
 resource "aws_instance" "web2" {
-  ami                         = "ami-0cff7528ff583bf9a"
+  ami                         = "ami-04706e771f950937f"
   instance_type               = "t2.micro"
   key_name                    = "intellipaat-test-key-pair-09122022"
   availability_zone           = "eu-west-2b"
