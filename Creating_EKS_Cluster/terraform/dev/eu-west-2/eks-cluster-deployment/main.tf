@@ -3,7 +3,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "4.60.0"
     }
   }
@@ -31,12 +31,12 @@ locals {
 
 
 module "networking" {
-  source = "D:/Terraform/terraform_hands_on/Creating_EKS_Cluster/modules/networking"
-  vpc_cidr = local.vpc_cidr
+  source           = "D:/Terraform/terraform_hands_on/Creating_EKS_Cluster/modules/networking"
+  vpc_cidr         = local.vpc_cidr
   tags             = local.tags
   public_sn_count  = 2
   private_sn_count = 2
-  availabilityzone = "ueu-west-2a"
+  availabilityzone = "eu-west-2a"
   azs              = 2
 }
 
