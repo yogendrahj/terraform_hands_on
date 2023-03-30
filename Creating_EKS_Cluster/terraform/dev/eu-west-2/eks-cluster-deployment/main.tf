@@ -53,3 +53,4 @@ module "cluster" {
   public_subnets  = module.networking.public_subnets
   private_subnets = module.networking.private_subnets
 }
+
