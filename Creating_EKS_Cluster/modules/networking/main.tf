@@ -22,9 +22,7 @@ data "aws_availability_zones" "available" {
 resource "aws_internet_gateway" "eks_internet_gateway" {
   vpc_id = aws_vpc.eks_vpc.id
 
-  tags = {
-    Name = var.tags
-  }
+  tags = var.tags
 
   lifecycle {
     create_before_destroy = true

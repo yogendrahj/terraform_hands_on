@@ -18,7 +18,7 @@ resource "aws_eks_cluster" "eks-cluster" {
   }
 
   depends_on = [
-    aws_iam_role.eks_role.arn
+    aws_iam_role.eks_role
   ]
 }
 
@@ -41,12 +41,12 @@ resource "aws_eks_node_group" "eks_worker_nodes-group" {
 
   remote_access {
     source_security_group_ids = ["${aws_security_group.eks-cluster-sg.id}"]
-    ec2_ssh_key               = var.ec2_ssh_key
+    ec2_ssh_key               =  var.ec2_ssh_key
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.example-AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.example-AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
     #aws_iam_role_policy_attachment.example-AmazonEC2ContainerRegistryReadOnly,
   ]
 }
@@ -109,9 +109,9 @@ resource "aws_iam_role" "eks_worker_nodes_role" {
 
 ### WORKER NODES ROLE POLICY ATTACHMENTS
 
-resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnlyPolicy" {
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
   role       = aws_iam_role.eks_worker_nodes_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnlyPolicy"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
@@ -124,9 +124,9 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
-resource "aws_iam_role_policy_attachment" "EC2InstanceProfileForImageBuilderECRContainerBuildsPolicy" {
+resource "aws_iam_role_policy_attachment" "EC2InstanceProfileForImageBuilderECRContainerBuilds" {
   role       = aws_iam_role.eks_worker_nodes_role.name
-  policy_arn = "arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuildsPolicy"
+  policy_arn = "arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
 }
 
 
@@ -183,7 +183,7 @@ resource "aws_security_group_rule" "eks-node-ingress-self" {
   from_port                = 0
   to_port                  = 65535
   protocol                 = "-1"
-  source_security_group_id = aws_security_group.eks-node-sg.id
+  source_security_group_id = aws_security_group.eks-worker-node-sg.id
   security_group_id        = aws_security_group.eks-worker-node-sg.id
 }
 
