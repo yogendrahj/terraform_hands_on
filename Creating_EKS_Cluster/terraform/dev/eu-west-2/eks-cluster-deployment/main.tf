@@ -46,7 +46,7 @@ module "cluster" {
   tags            = local.tags
   name            = local.name
   vpc_id          = module.networking.vpc_id
-  ec2_ssh_key     = "EKS-Key"
+  ec2_ssh_key     = "test_terraform_01_28092022.ppk"
   desired_size    = 2
   min_size        = 1
   max_size        = 5
